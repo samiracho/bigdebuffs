@@ -1212,33 +1212,31 @@ function BigDebuffs:ShowBigDebuffs(frame)
 
 	for i = 1, 40 do
 		local _,_,_,_, dispelType, _, time, caster, _,_, id = UnitDebuff(frame.displayedUnit, i)
-		if id then
-			if not self.db.profile.raidFrames.blackList[id] then
-				local reaction = caster and UnitReaction("player", caster) or 0
-				local friendlySmokeBomb = id == 212183 and reaction > 4
-				local size = self:GetDebuffSize(id, self:IsDispellable(dispelType))
-				if size and not friendlySmokeBomb then
-					big = true
-					local duration = time and time - now or 0
-					tinsert(debuffs, { i, size, duration, self:GetDebuffPriority(id) })
-				elseif self.db.profile.raidFrames.redirectBliz or
-				(self.db.profile.raidFrames.anchor == "INNER" and not self.db.profile.raidFrames.hideBliz) then
-					if not frame.optionTable.displayOnlyDispellableDebuffs or self:IsDispellable(dispelType) then
-						tinsert(debuffs, { i, self.db.profile.raidFrames.default, 0, 0 }) -- duration 0 to preserve Blizzard order
-					end
+		if id and not self.db.profile.raidFrames.blackList[id] then
+			local reaction = caster and UnitReaction("player", caster) or 0
+			local friendlySmokeBomb = id == 212183 and reaction > 4
+			local size = self:GetDebuffSize(id, self:IsDispellable(dispelType))
+			if size and not friendlySmokeBomb then
+				big = true
+				local duration = time and time - now or 0
+				tinsert(debuffs, { i, size, duration, self:GetDebuffPriority(id) })
+			elseif self.db.profile.raidFrames.redirectBliz or
+			(self.db.profile.raidFrames.anchor == "INNER" and not self.db.profile.raidFrames.hideBliz) then
+				if not frame.optionTable.displayOnlyDispellableDebuffs or self:IsDispellable(dispelType) then
+					tinsert(debuffs, { i, self.db.profile.raidFrames.default, 0, 0 }) -- duration 0 to preserve Blizzard order
 				end
+			end
 
-				-- Set warning debuff
-				local k
-				for j = 1, #self.WarningDebuffs do
-					if id == self.WarningDebuffs[j] and
-					self.db.profile.raidFrames.warningList[id] and
-					not friendlySmokeBomb and
-					(not k or j < k) then
-						k = j
-						warning = i
-						warningId = id
-					end
+			-- Set warning debuff
+			local k
+			for j = 1, #self.WarningDebuffs do
+				if id == self.WarningDebuffs[j] and
+				self.db.profile.raidFrames.warningList[id] and
+				not friendlySmokeBomb and
+				(not k or j < k) then
+					k = j
+					warning = i
+					warningId = id
 				end
 			end
 		end
